@@ -186,3 +186,6 @@ O workflow utiliza as seguintes secrets configuradas no GitHub:
 
 - **Produção:** http://177.104.178.133:3005
 - **GitHub:** https://github.com/Discra0001/importador.xlsx
+
+---
+*Último deploy:* 2026-01-09 10:35:42
