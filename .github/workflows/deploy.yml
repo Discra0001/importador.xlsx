@@ -10,21 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Deploy via SSH
-        env:
-          SSH_KEY: ${{ secrets.SSH_KEY }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_KEY" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key -p $SSH_PORT $SSH_USER@$SSH_HOST << 'ENDSSH'
-          cd /home/discra/importador_xlsx
-          git fetch origin
-          git reset --hard origin/main
-          npm ci --production 2>/dev/null || npm install --production
-          docker restart importador_xlsx
-          docker ps --filter "name=importador_xlsx" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
-          ENDSSH
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script_stop: true
+          script: |
+            cd /home/discra/importador_xlsx
+            git fetch origin
+            git reset --hard origin/main
+            npm ci --production || npm install --production
+            docker restart importador_xlsx
+            docker ps --filter "name=importador_xlsx"
