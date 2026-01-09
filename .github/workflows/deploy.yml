@@ -1,0 +1,77 @@
+name: Deploy to Production Server
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # Permite execução manual
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script_stop: true
+          script: |
+            # Definir variáveis
+            CONTAINER_NAME="${{ secrets.CONTAINER_NAME }}"
+            CONTAINER_PATH="${{ secrets.CONTAINER_PATH }}"
+            
+            echo "🚀 Iniciando deployment..."
+            echo "Container: $CONTAINER_NAME"
+            echo "Path: $CONTAINER_PATH"
+            
+            # Verificar se o diretório existe
+            if [ ! -d "$CONTAINER_PATH" ]; then
+              echo "❌ Diretório $CONTAINER_PATH não encontrado!"
+              exit 1
+            fi
+            
+            # Entrar no diretório
+            cd "$CONTAINER_PATH"
+            
+            # Verificar se é um repositório git
+            if [ ! -d ".git" ]; then
+              echo "⚠️ Diretório não é um repositório git. Inicializando..."
+              git init
+              git remote add origin https://github.com/Discra0001/importador.xlsx.git
+            fi
+            
+            # Fazer pull das alterações
+            echo "📥 Pulling latest changes..."
+            git fetch origin
+            git reset --hard origin/main
+            git clean -fd
+            
+            # Instalar/Atualizar dependências
+            echo "📦 Installing dependencies..."
+            npm ci --production
+            
+            # Verificar se o container está rodando
+            if docker ps | grep -q "$CONTAINER_NAME"; then
+              echo "🔄 Reiniciando container $CONTAINER_NAME..."
+              docker restart "$CONTAINER_NAME"
+            else
+              echo "⚠️ Container não está rodando. Iniciando..."
+              docker start "$CONTAINER_NAME" || echo "Container precisa ser criado manualmente"
+            fi
+            
+            # Verificar status do container
+            echo "📊 Status do container:"
+            docker ps --filter "name=$CONTAINER_NAME" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+            
+            # Verificar logs recentes
+            echo "📋 Logs recentes:"
+            docker logs --tail 20 "$CONTAINER_NAME"
+            
+            echo "✅ Deploy concluído com sucesso!"

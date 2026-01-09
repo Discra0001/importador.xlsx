@@ -1,0 +1,51 @@
+# Dependências
+node_modules/
+package-lock.json
+
+# Logs
+log.txt
+*.log
+npm-debug.log*
+
+# Arquivos temporários
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Arquivos de dados e configuração local
+somatizacaoData.json
+conversao.json
+_headerLWL.json
+server.pid
+
+# Arquivos de teste e desenvolvimento
+test_*.js
+*.xlsx
+*.xls
+*.rar
+
+# Backups
+BackupVersion/
+.Others/
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Claude
+.claude/
+
+# Documentação antiga
+*.md
+!README.md
+
+# Scripts batch
+_*.bat

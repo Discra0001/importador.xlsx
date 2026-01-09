@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste de Detecção RedeX</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+</head>
+<body>
+    <h1>Teste de Detecção de Layout RedeX</h1>
+    
+    <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="testDetection(event)">
+    
+    <div id="results"></div>
+    
+    <script>
+        function testDetection(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = e.target.result;
+                const workbook = XLSX.read(data, { type: 'binary' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                
+                console.log('=== ANÁLISE COMPLETA DA PLANILHA ===');
+                
+                // Primeira linha
+                const columns1 = [];
+                for (const key in worksheet) {
+                    if (/^[A-Z]1$/.test(key) && worksheet[key].v) {
+                        columns1.push(worksheet[key].v);
+                    }
+                }
+                console.log('Linha 1:', columns1);
+                
+                // Buscar cabeçalho RedeX nas linhas 50-60
+                for (let row = 50; row <= 60; row++) {
+                    const rowCells = [];
+                    for (const key in worksheet) {
+                        if (new RegExp(`^[A-Z]${row}$`).test(key) && worksheet[key].v) {
+                            rowCells.push(worksheet[key].v);
+                        }
+                    }
+                    
+                    if (rowCells.length > 0) {
+                        console.log(`Linha ${row}:`, rowCells);
+                        
+                        // Verificar se é o cabeçalho RedeX
+                        if (rowCells.includes('Loja') && rowCells.includes('GTIN/PLU Unitário')) {
+                            console.log(`🎯 CABEÇALHO REDEX ENCONTRADO na linha ${row}!`);
+                            document.getElementById('results').innerHTML = `
+                                <h2>✅ Cabeçalho RedeX Detectado na Linha ${row}</h2>
+                                <ul>${rowCells.map(col => `<li>${col}</li>`).join('')}</ul>
+                            `;
+                            return;
+                        }
+                    }
+                }
+                
+                document.getElementById('results').innerHTML = '<h2>❌ Cabeçalho RedeX não encontrado</h2>';
+            };
+            
+            reader.readAsBinaryString(file);
+        }
+    </script>
+</body>
+</html>

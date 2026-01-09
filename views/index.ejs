@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Importação de Pedidos</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+    <style>
+        :root {
+            --primary-color: #4a5568;
+            --primary-dark: #2d3748;
+            --primary-light: #718096;
+            --secondary-color: #1a202c;
+            --text-muted: #718096;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border-color: #e2e8f0;
+            --background-light: #f7fafc;
+            --background-white: #ffffff;
+            --background-gray: #edf2f7;
+            --success-color: #48bb78;
+            --warning-color: #ed8936;
+            --error-color: #f56565;
+            --info-color: #4299e1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--background-light) 0%, var(--background-gray) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        /* Header */
+        .header-section {
+            background: var(--background-white);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .brand-title {
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .brand-title i {
+            font-size: 2.5rem;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem 2rem;
+        }
+
+        /* Cards */
+        .custom-card {
+            background: var(--background-white);
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .custom-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .card-header-custom {
+            background: var(--primary-color);
+            color: white;
+            padding: 1.5rem;
+            border: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 3px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: var(--background-white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .upload-area:hover,
+        .upload-area.drag-over {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(74, 85, 104, 0.05), rgba(74, 85, 104, 0.1));
+        }
+
+        .upload-area:hover::before,
+        .upload-area.drag-over::before {
+            opacity: 1;
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .upload-text {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .upload-subtext {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .file-input-label:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 85, 104, 0.3);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Form Sections */
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            color: var(--secondary-color);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title i {
+            color: var(--primary-color);
+        }
+
+        /* Radio Groups */
+        .radio-group {
+            background: var(--background-light);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-check-input[type="radio"] {
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid var(--border-color);
+            margin-right: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .form-check-input[type="radio"]:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .form-check-input[type="radio"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(246, 149, 41, 0.25);
+        }
+
+        .form-check-label {
+            cursor: pointer;
+            user-select: none;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-check-label:hover {
+            background: rgba(246, 149, 41, 0.05);
+        }
+
+        /* Network Cards */
+        .network-option {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--background-white);
+        }
+
+        .network-option:hover {
+            border-color: var(--primary-light);
+            background: rgba(246, 149, 41, 0.02);
+        }
+
+        .network-option.selected {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(246, 149, 41, 0.1), rgba(246, 149, 41, 0.05));
+        }
+
+        .network-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        .network-header i {
+            color: var(--primary-color);
+            font-size: 1.25rem;
+        }
+
+        /* Checkboxes */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .form-check-input[type="checkbox"] {
+            width: 1.1rem;
+            height: 1.1rem;
+            border: 2px solid var(--border-color);
+            margin-right: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .form-check-input[type="checkbox"]:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .form-check-input[type="checkbox"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(246, 149, 41, 0.25);
+        }
+
+        /* Submit Button */
+        .submit-button {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 2rem auto 0;
+            min-width: 200px;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(246, 149, 41, 0.3);
+        }
+
+        .submit-button:active {
+            transform: translateY(-1px);
+        }
+
+        .submit-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Form Controls */
+        .form-control, .form-select {
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(246, 149, 41, 0.25);
+        }
+
+        /* Alerts */
+        .alert-custom {
+            border: none;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(52, 152, 219, 0.05));
+            color: #2980b9;
+            border-left: 4px solid #3498db;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 9999;
+            animation: slideIn 0.3s ease-out;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            max-width: 350px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .notification.warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .brand-title {
+                font-size: 1.5rem;
+            }
+
+            .upload-area {
+                padding: 2rem 1rem;
+            }
+
+            .upload-icon {
+                font-size: 3rem;
+            }
+
+            .checkbox-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .submit-button {
+                width: 100%;
+                padding: 1rem;
+            }
+
+            .notification {
+                left: 20px;
+                right: 20px;
+                max-width: none;
+            }
+        }
+
+        /* Loading State */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--background-light);
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Tooltip */
+        .tooltip-custom {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip-custom::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--secondary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .tooltip-custom:hover::after {
+            opacity: 1;
+        }
+
+        /* Progress Bar */
+        .progress-bar-custom {
+            height: 8px;
+            background: var(--background-light);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+            transition: width 0.3s ease;
+        }
+
+        /* Bonificação Alert */
+        .bonificacao-alert {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            z-index: 9998;
+            box-shadow: 0 4px 20px rgba(243, 156, 18, 0.3);
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .bonificacao-alert.show {
+            transform: translateY(0);
+        }
+
+        .bonificacao-alert i {
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        /* Body theme for bonificação */
+        body.bonificacao-theme {
+            background: linear-gradient(135deg, rgba(243, 156, 18, 0.1), rgba(230, 126, 34, 0.05));
+        }
+
+        body.bonificacao-theme .custom-card {
+            border-left: 4px solid #f39c12;
+        }
+
+        body.bonificacao-theme .upload-area {
+            border-color: rgba(243, 156, 18, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Bonificação Alert -->
+    <div class="bonificacao-alert" id="bonificacaoAlert">
+        <i class="bi bi-gift-fill"></i>
+        <strong>MODO DE BONIFICAÇÃO ATIVADO</strong> - Os pedidos serão enviados como bonificação/amostra para o cliente
+    </div>
+
+    <div class="header-section">
+        <div class="container">
+            <div class="brand-title animate__animated animate__fadeInDown">
+                <i class="bi bi-cloud-upload"></i>
+                Sistema de Importação de Pedidos
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <form method="POST" action="/upload" enctype="multipart/form-data" id="importForm">
+            <!-- Upload Section -->
+            <div class="custom-card mb-4 animate__animated animate__fadeIn">
+                <div class="card-header-custom">
+                    <i class="bi bi-file-earmark-arrow-up"></i>
+                    1. Selecionar Arquivo
+                </div>
+                <div class="card-body p-4">
+                    <div class="upload-area" id="uploadArea">
+                        <i class="bi bi-cloud-arrow-up upload-icon"></i>
+                        <div class="upload-text">Arraste o arquivo aqui ou clique para selecionar</div>
+                        <div class="upload-subtext">Formatos aceitos: .xlsx, .xls</div>
+                        <input type="file" name="file" id="fileInput" class="file-input" accept=".xlsx, .xls">
+                        <label for="fileInput" class="file-input-label">
+                            <i class="bi bi-folder-open"></i> Escolher Arquivo
+                        </label>
+                    </div>
+                    <div class="mt-3" id="fileInfo" style="display: none;">
+                        <div class="alert alert-custom alert-info d-flex align-items-center">
+                            <i class="bi bi-file-earmark-check me-2"></i>
+                            <span id="fileName"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Type Section -->
+            <div class="custom-card mb-4 animate__animated animate__fadeIn animate__delay-1s">
+                <div class="card-header-custom">
+                    <i class="bi bi-clipboard-check"></i>
+                    2. Tipo de Pedido
+                </div>
+                <div class="card-body p-4">
+                    <div class="radio-group">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="tipo-pedido" id="tipo-venda" value="venda">
+                            <label class="form-check-label" for="tipo-venda">
+                                <i class="bi bi-cash-coin me-2 text-success"></i>
+                                Venda
+                                <small class="text-muted ms-2">Pedido comercial padrão</small>
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="tipo-pedido" id="tipo-bonificacao" value="bonificacao">
+                            <label class="form-check-label" for="tipo-bonificacao">
+                                <i class="bi bi-gift me-2 text-warning"></i>
+                                Bonificação
+                                <small class="text-muted ms-2">Amostra ou brinde</small>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="tipo-pedido" id="tipo-negociacao" value="negociacao" checked>
+                            <label class="form-check-label" for="tipo-negociacao">
+                                <i class="bi bi-handshake me-2 text-info"></i>
+                                Negociação
+                                <small class="text-muted ms-2">Proposta comercial</small>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sales Area Section -->
+            <div class="custom-card mb-4 animate__animated animate__fadeIn animate__delay-2s">
+                <div class="card-header-custom">
+                    <i class="bi bi-person-badge"></i>
+                    3. Área de Venda
+                </div>
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <label for="area_venda_filter" class="form-label">
+                            <i class="bi bi-search me-1"></i>
+                            Buscar Área de Venda
+                        </label>
+                        <input type="text" id="area_venda_filter" class="form-control" placeholder="Digite para filtrar áreas...">
+                    </div>
+                    <div class="mb-3">
+                        <label for="area_venda" class="form-label">
+                            <i class="bi bi-geo-alt me-1"></i>
+                            Selecionar Área de Venda
+                        </label>
+                        <select name="area_venda" id="area_venda" class="form-select" required>
+                            <option value="" disabled selected>Selecione uma área de venda</option>
+                            <% if (typeof areasVenda !== 'undefined' && areasVenda.length > 0) { %>
+                                <% areasVenda.forEach(function(area) { %>
+                                    <option value="<%= area.CODIGOINTERNOAREAVEN %>">
+                                        <%= area.DSAREAVENDA %>
+                                    </option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                    </div>
+                    <div class="alert alert-custom alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Selecione a área de venda responsável pelo pedido para atribuição correta.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layout Selection Section -->
+            <div class="custom-card mb-4 animate__animated animate__fadeIn animate__delay-3s">
+                <div class="card-header-custom">
+                    <i class="bi bi-diagram-3"></i>
+                    4. Layout da Planilha
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <!-- Barbosa Layout -->
+                        <div class="col-md-6 mb-3">
+                            <div class="network-option" data-network="barbosa">
+                                <div class="network-header">
+                                    <input type="radio" name="Rede" value="barbosa" class="me-2">
+                                    <i class="bi bi-building"></i>
+                                    Rede Barbosa
+                                </div>
+                                <div class="checkbox-grid">
+                                    <div class="form-check">
+                                        <input type="checkbox" name="selected_columns" value="Material" class="form-check-input">
+                                        <label class="form-check-label">Código Interno</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="selected_columns" value="Centro" class="form-check-input">
+                                        <label class="form-check-label">Código Loja</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="selected_columns" value="Qtd.do pedido" class="form-check-input">
+                                        <label class="form-check-label">Quantidade</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="selected_columns" value="UM pedido" class="form-check-input">
+                                        <label class="form-check-label">Embalagem</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="selected_columns" value="Preço líquido" class="form-check-input">
+                                        <label class="form-check-label">Preço Unitário</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="selected_columns" value="Item" class="form-check-input">
+                                        <label class="form-check-label">Nº Pedido</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RedeX Layout -->
+                        <div class="col-md-6 mb-3">
+                            <div class="network-option" data-network="redex">
+                                <div class="network-header">
+                                    <input type="radio" name="Rede" value="redex" class="me-2">
+                                    <i class="bi bi-globe"></i>
+                                    Rede X
+                                </div>
+                                <div class="checkbox-grid">
+                                    <div class="form-check">
+                                        <input type="checkbox" name="selected_columns" value="Loja" class="form-check-input">
+                                        <label class="form-check-label">Código Loja</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="selected_columns" value="GTIN/PLU Unitário" class="form-check-input">
+                                        <label class="form-check-label">GTIN/PLU</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="selected_columns" value="Descrição do Produto" class="form-check-input">
+                                        <label class="form-check-label">Descrição</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="selected_columns" value="Ref. Fornecedor" class="form-check-input">
+                                        <label class="form-check-label">Referência</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="selected_columns" value="Qtde." class="form-check-input">
+                                        <label class="form-check-label">Quantidade</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="selected_columns" value="Custo" class="form-check-input">
+                                        <label class="form-check-label">Custo Unitário</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="selected_columns" value="Total" class="form-check-input">
+                                        <label class="form-check-label">Valor Total</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Generic Layout -->
+                        <div class="col-md-12 mb-3">
+                            <div class="network-option" data-network="generic">
+                                <div class="network-header">
+                                    <input type="radio" name="Rede" value="generic" class="me-2">
+                                    <i class="bi bi-file-earmark-spreadsheet"></i>
+                                    Layout Genérico (PedidosBase)
+                                    <span class="badge bg-success ms-2">Recomendado</span>
+                                </div>
+                                <div class="alert alert-custom alert-info mt-2">
+                                    <i class="bi bi-lightbulb me-2"></i>
+                                    <strong>Detecção automática:</strong> Planilhas com metadados e layout padrão de itens.
+                                </div>
+                                <div class="checkbox-grid">
+                                    <div class="form-check">
+                                        <input type="checkbox" name="selected_columns" value="Codigo Produto" class="form-check-input">
+                                        <label class="form-check-label">Código Produto</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="selected_columns" value="Descrição do produto" class="form-check-input">
+                                        <label class="form-check-label">Descrição</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="selected_columns" value="Quantidade" class="form-check-input">
+                                        <label class="form-check-label">Quantidade</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="selected_columns" value="Embalagem" class="form-check-input">
+                                        <label class="form-check-label">Embalagem</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="selected_columns" value="Valor Unitário" class="form-check-input">
+                                        <label class="form-check-label">Valor Unitário</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="selected_columns" value="Vl total Pedido" class="form-check-input">
+                                        <label class="form-check-label">Valor Total</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="submit-button" id="submitBtn">
+                <i class="bi bi-upload me-2"></i>
+                Processar Planilha
+            </button>
+        </form>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="text-center">
+            <div class="loading-spinner"></div>
+            <div class="mt-3">
+                <h5>Processando arquivo...</h5>
+                <p class="text-muted">Por favor, aguarde um momento.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <script>
+        // Declarar variáveis no escopo global
+        let uploadArea, fileInput, fileInfo, fileName;
+        let fileSelected = false; // Variável global para rastrear se arquivo foi selecionado
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Upload Area Drag & Drop
+            uploadArea = document.getElementById('uploadArea');
+            fileInput = document.getElementById('fileInput');
+            fileInfo = document.getElementById('fileInfo');
+            fileName = document.getElementById('fileName');
+
+            // Debug inicial
+            console.log('🔧 Setup inicial do upload:');
+            console.log('- uploadArea:', uploadArea);
+            console.log('- fileInput:', fileInput);
+            console.log('- fileInput.files.length:', fileInput ? fileInput.files.length : 'null');
+            console.log('- fileInfo:', fileInfo);
+            console.log('- fileName:', fileName);
+
+            // Drag and Drop Events
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('drag-over');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('drag-over');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('drag-over');
+
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileSelect(files[0]);
+                }
+            });
+
+            // File Input Change
+            fileInput.addEventListener('change', (e) => {
+                console.log('📎 File input change event:');
+                console.log('- e.target:', e.target);
+                console.log('- e.target.files:', e.target.files);
+                console.log('- e.target.files.length:', e.target.files.length);
+                console.log('- e.target.files[0]:', e.target.files[0]);
+
+                if (e.target.files.length > 0) {
+                    console.log('📁 Chamando handleFileSelect com arquivo:', e.target.files[0].name);
+                    handleFileSelect(e.target.files[0]);
+                } else {
+                    console.log('⚠️ Nenhum arquivo no file input change');
+                }
+            });
+
+            function handleFileSelect(file) {
+                console.log('📁 Iniciando handleFileSelect com arquivo:', file);
+                console.log('- file.name:', file.name);
+                console.log('- file.size:', file.size);
+                console.log('- file.type:', file.type);
+
+                const validTypes = [
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'application/vnd.ms-excel'
+                ];
+
+                console.log('- Tipos válidos:', validTypes);
+                console.log('- file.type válido?', validTypes.includes(file.type));
+
+                if (!validTypes.includes(file.type)) {
+                    alert('Por favor, selecione um arquivo Excel (.xlsx ou .xls)');
+                    return;
+                }
+
+                if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                    alert('O arquivo deve ter no máximo 10MB.');
+                    return;
+                }
+
+                // 🎯 CRÍTICO: Atribuir arquivo ao input element
+                try {
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    fileInput.files = dataTransfer.files;
+
+                    console.log('✅ Arquivo atribuído ao fileInput:');
+                    console.log('- fileInput.files.length:', fileInput.files.length);
+                    console.log('- fileInput.files[0].name:', fileInput.files[0]?.name);
+                } catch (error) {
+                    console.error('❌ Erro ao atribuir arquivo ao input:', error);
+                    alert('Erro ao processar arquivo. Tente novamente.');
+                    return;
+                }
+
+                // Marcar que arquivo foi selecionado
+                fileSelected = true;
+                fileName.textContent = file.name;
+                fileInfo.style.display = 'block';
+
+                // Mudar estado visual do upload area
+                uploadArea.style.borderColor = 'var(--success-color)';
+                uploadArea.style.background = 'linear-gradient(135deg, rgba(72, 187, 120, 0.05), rgba(72, 187, 120, 0.1))';
+
+                console.log('✅ Arquivo selecionado:', file.name, 'Estado:', fileSelected);
+                console.log('📋 fileName.textContent atualizado:', fileName.textContent);
+                console.log('📋 fileInfo.style.display:', fileInfo.style.display);
+                console.log('📋 Verificação final - fileInput.files.length:', fileInput.files.length);
+
+                // Auto-detect layout
+                autoDetectLayout(file);
+            }
+
+            function selectNetwork(network) {
+                // Clear all selections first
+                document.querySelectorAll('input[name="Rede"]').forEach(radio => radio.checked = false);
+                document.querySelectorAll('.network-option').forEach(card => card.classList.remove('selected'));
+
+                // Mark selected network
+                const networkInput = document.querySelector(`input[name="Rede"][value="${network}"]`);
+                if (networkInput) {
+                    networkInput.checked = true;
+                }
+
+                // Update visual of network cards
+                const networkCard = document.querySelector(`[data-network="${network}"]`);
+                if (networkCard) {
+                    networkCard.classList.add('selected');
+                }
+            }
+
+            function detectLayout(columns, isGrupoX = false) {
+                // Clear selections
+                document.querySelectorAll('input[name="Rede"]').forEach(cb => cb.checked = false);
+
+                // Verificar se é RedeX (baseado nos headers reais do arquivo)
+                const redeXHeaders = [
+                    'Loja', 'Entrega', 'GTIN/PLU Unitário', 'Descrição do Produto',
+                    'Ref. Fornecedor', 'Qtde.', 'Custo', 'Total'
+                ];
+                const redeXMatches = redeXHeaders.filter(col => columns.includes(col)).length;
+
+                // Verificar se é Barbosa (baseado nos headers reais do arquivo)
+                const barbosaHeaders = [
+                    'Material', 'Centro', 'Qtd.do pedido', 'UM pedido', 'Preço líquido', 'Item'
+                ];
+                const barbosaMatches = barbosaHeaders.filter(col => columns.includes(col)).length;
+
+                // Verificar se é Genérico
+                const genericHeaders = [
+                    'COND PAGTO', 'CNPJ', 'COD. CLIENTE', 'N° PEDIDO',
+                    'Codigo Produto', 'Descrição do produto'
+                ];
+                const genericMatches = genericHeaders.filter(col => columns.includes(col)).length;
+
+                // Detecção por texto na planilha
+                const columnsText = columns.join(' ').toLowerCase();
+                const hasRedeXKeywords = columnsText.includes('grupo x') || columnsText.includes('pedido de compra número');
+                const hasBarbosaKeywords = columnsText.includes('barbosa') || columnsText.includes('fornecedor/centro');
+
+                console.log('🔍 Detecção de Layout:');
+                console.log('- RedeX matches:', redeXMatches, 'Keywords:', hasRedeXKeywords);
+                console.log('- Barbosa matches:', barbosaMatches, 'Keywords:', hasBarbosaKeywords);
+                console.log('- Genérico matches:', genericMatches);
+
+                // Lógica de prioridade
+                if (isGrupoX || hasRedeXKeywords || redeXMatches >= 5) {
+                    selectNetwork('redex');
+                    showNotification('Layout RedeX detectado automaticamente!', 'success');
+                } else if (barbosaMatches >= 3 || hasBarbosaKeywords) {
+                    selectNetwork('barbosa');
+                    showNotification('Layout Barbosa detectado automaticamente!', 'success');
+                } else if (genericMatches >= 2) {
+                    selectNetwork('generic');
+                    showNotification('Layout Genérico detectado automaticamente!', 'success');
+                } else {
+                    selectNetwork('generic');
+                    showNotification('Layout não reconhecido, usando Genérico como padrão', 'warning');
+                }
+            }
+
+            function autoDetectLayout(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = e.target.result;
+                        const workbook = XLSX.read(data, { type: 'binary' });
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+
+                        // 🎯 CRÍTICO: Primeiro limpar todos os checkboxes antes de marcar novos
+                        document.querySelectorAll('input[type="checkbox"][name="selected_columns"]').forEach(cb => {
+                            cb.checked = false;
+                        });
+
+                        // Extração de headers melhorada para RedeX
+                        const allHeaders = [];
+
+                        // Função auxiliar para extrair headers de uma linha específica
+                        function extractHeadersFromLine(lineNumber) {
+                            const headers = [];
+                            for (const key in worksheet) {
+                                if (new RegExp(`^[A-Z]${lineNumber}$`).test(key) && worksheet[key].v) {
+                                    headers.push(String(worksheet[key].v).trim());
+                                }
+                            }
+                            return headers;
+                        }
+
+                        // Extrair headers de múltiplas linhas onde o RedeX pode ter colunas
+                        const linesToCheck = [1, 6, 12, 23]; // Linhas importantes do RedeX
+                        linesToCheck.forEach(lineNum => {
+                            const lineHeaders = extractHeadersFromLine(lineNum);
+                            allHeaders.push(...lineHeaders);
+                        });
+
+                        // Remover duplicados e headers vazios
+                        const uniqueHeaders = [...new Set(allHeaders.filter(h => h && h.length > 0))];
+                        console.log('🔍 Headers únicos detectados:', uniqueHeaders);
+
+                        // Mapeamento de colunas com nomes alternativos comuns
+                        const columnMappings = {
+                            'Loja': ['Loja', 'Cód. Loja', 'Cod Loja', 'Codigo Loja'],
+                            'GTIN/PLU Unitário': ['GTIN/PLU Unitário', 'GTIN', 'PLU', 'Cód. Produto', 'Codigo Produto'],
+                            'Descrição do Produto': ['Descrição do Produto', 'Descrição', 'Produto', 'Desc Produto'],
+                            'Ref. Fornecedor': ['Ref. Fornecedor', 'Referência', 'Ref'],
+                            'Qtde.': ['Qtde.', 'Quantidade', 'Qtd', 'QTD', 'Qtde'],
+                            'Custo': ['Custo', 'Valor Unitário', 'Preço', 'Preço Unitário', 'Valor'],
+                            'Total': ['Total', 'Valor Total', 'Vl. Total', 'Vl Total'],
+                            'Material': ['Material', 'Código Interno', 'Codigo Produto'],
+                            'Centro': ['Centro', 'Código Loja', 'Loja'],
+                            'Qtd.do pedido': ['Qtd.do pedido', 'Quantidade', 'Qtd', 'Qtde'],
+                            'UM pedido': ['UM pedido', 'Embalagem', 'Unidade'],
+                            'Preço líquido': ['Preço líquido', 'Preço Unitário', 'Valor Unitário', 'Valor'],
+                            'Item': ['Item', 'Nº Pedido', 'Num Pedido', 'Pedido']
+                        };
+
+                        // Função para encontrar checkbox correspondente com mapeamento
+                        function findCheckboxForHeader(header) {
+                            // Busca direta primeiro
+                            let checkbox = document.querySelector(`input[type="checkbox"][name="selected_columns"][value="${header}"]`);
+
+                            if (checkbox) {
+                                return checkbox;
+                            }
+
+                            // Busca usando mapeamentos
+                            for (const [standardName, alternatives] of Object.entries(columnMappings)) {
+                                if (alternatives.includes(header)) {
+                                    checkbox = document.querySelector(`input[type="checkbox"][name="selected_columns"][value="${standardName}"]`);
+                                    if (checkbox) {
+                                        console.log(`📋 Mapeado "${header}" -> "${standardName}"`);
+                                        return checkbox;
+                                    }
+                                }
+                            }
+
+                            return null;
+                        }
+
+                        // Auto-select checkboxes based on detected headers com mapeamento
+                        uniqueHeaders.forEach(header => {
+                            const checkbox = findCheckboxForHeader(header);
+                            if (checkbox) {
+                                checkbox.checked = true;
+                                console.log(`✅ Checkbox marcado para: "${header}"`);
+                            } else {
+                                console.log(`⚠️ Nenhum checkbox encontrado para: "${header}"`);
+                            }
+                        });
+
+                        // Auto-detect layout
+                        detectLayout(uniqueHeaders, false);
+
+                    } catch (error) {
+                        console.error('❌ Erro ao ler arquivo:', error);
+                    }
+                };
+
+                reader.readAsBinaryString(file);
+            }
+
+            function showNotification(message, type) {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.innerHTML = `
+                    <i class="bi bi-${type === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>
+                    ${message}
+                `;
+
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease-in';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 4000);
+            }
+
+            // Area Venda Filter
+            const areaVendaFilter = document.getElementById('area_venda_filter');
+            const areaVendaSelect = document.getElementById('area_venda');
+            const originalOptions = Array.from(areaVendaSelect.options);
+
+            areaVendaFilter.addEventListener('keyup', () => {
+                const filterText = areaVendaFilter.value.toLowerCase();
+                areaVendaSelect.innerHTML = '';
+
+                originalOptions.forEach(option => {
+                    if (option.text.toLowerCase().includes(filterText)) {
+                        areaVendaSelect.add(option.cloneNode(true));
+                    }
+                });
+            });
+
+            areaVendaSelect.addEventListener('click', () => {
+                if (areaVendaSelect.options.length !== originalOptions.length) {
+                    areaVendaSelect.innerHTML = '';
+                    originalOptions.forEach(option => {
+                        areaVendaSelect.add(option.cloneNode(true));
+                    });
+                }
+            });
+
+            // Form submission
+            const form = document.getElementById('importForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+
+            form.addEventListener('submit', (e) => {
+                // Basic validation - verifica se arquivo foi selecionado
+                console.log('🔍 Validação do formulário:');
+                console.log('- fileSelected:', fileSelected);
+                console.log('- fileInput.files.length:', fileInput.files.length);
+                console.log('- fileName.textContent:', fileName.textContent);
+
+                if (!fileSelected || !fileInput.files.length || !fileName.textContent) {
+                    e.preventDefault();
+                    showNotification('Por favor, selecione um arquivo.', 'warning');
+                    return;
+                }
+
+                const selectedNetwork = document.querySelector('input[name="Rede"]:checked');
+                if (!selectedNetwork) {
+                    e.preventDefault();
+                    showNotification('Por favor, selecione um layout de planilha.', 'warning');
+                    return;
+                }
+
+                const selectedColumns = document.querySelectorAll('input[name="selected_columns"]:checked');
+                if (selectedColumns.length === 0) {
+                    e.preventDefault();
+                    showNotification('Por favor, selecione pelo menos uma coluna.', 'warning');
+                    return;
+                }
+
+                // Show loading
+                loadingOverlay.style.display = 'flex';
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Processando...';
+            });
+
+            // Network option click handling
+            document.querySelectorAll('.network-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) {
+                        radio.checked = true;
+                        selectNetwork(this.dataset.network);
+                    }
+                });
+            });
+
+            // Bonificação alert handling
+            const bonificacaoAlert = document.getElementById('bonificacaoAlert');
+            const tipoPedidoRadios = document.querySelectorAll('input[name="tipo-pedido"]');
+
+            function updateBonificacaoAlert() {
+                const selectedTipo = document.querySelector('input[name="tipo-pedido"]:checked');
+
+                if (selectedTipo && selectedTipo.value === 'bonificacao') {
+                    // Mostrar alerta e aplicar tema
+                    document.body.classList.add('bonificacao-theme');
+                    bonificacaoAlert.classList.add('show');
+                    showNotification('Modo de bonificação ativado! Os pedidos serão enviados como amostra/brinde.', 'success');
+                } else {
+                    // Esconder alerta e remover tema
+                    document.body.classList.remove('bonificacao-theme');
+                    bonificacaoAlert.classList.remove('show');
+                }
+            }
+
+            // Adicionar event listeners para os radios de tipo de pedido
+            tipoPedidoRadios.forEach(radio => {
+                radio.addEventListener('change', updateBonificacaoAlert);
+            });
+
+            // Verificar estado inicial no carregamento
+            updateBonificacaoAlert();
+        });
+    </script>
+</body>
+</html>

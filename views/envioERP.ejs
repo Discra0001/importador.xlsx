@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <% if (typeof erro !== 'undefined' && erro) { %>
+    <title>Erro no processamento</title>
+  <% } else { %>
+    <title>Pedido inserido com sucesso</title>
+  <% } %>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+  <style>
+    .container {
+      padding-top: 100px;
+    }
+
+    .fadeIn {
+      animation-name: fadeIn;
+      animation-duration: 1.5s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container text-center">
+    <% if (typeof erro !== 'undefined' && erro) { %>
+      <i class="fas fa-exclamation-triangle fa-5x text-warning fadeIn"></i>
+      <h1 class="display-4 mt-3">Erro no processamento!</h1>
+      <p class="lead"><%= typeof mensagem !== 'undefined' ? mensagem : 'Ocorreu um erro ao processar seu pedido.' %></p>
+      <p class="mt-3 text-muted">Por favor, tente novamente. Se o erro persistir, contate o suporte técnico.</p>
+
+      <% if (typeof dadosReenvio !== 'undefined') { %>
+        <form id="formReenvio" action="/enviaERP" method="post" style="display: none;">
+          <input type="hidden" name="somatizacaoData" value="<%= dadosReenvio %>">
+          <input type="hidden" name="tipo-pedido" value="<%= typeof tipoPedidoSelecionado !== 'undefined' ? tipoPedidoSelecionado : 'negociacao' %>">
+          <input type="hidden" name="area_venda" value="<%= typeof areaVendaSelecionada !== 'undefined' ? areaVendaSelecionado : '' %>">
+        </form>
+      <% } %>
+
+      <div class="mt-4">
+        <button onclick="window.history.back()" class="btn btn-secondary btn-lg mr-3">
+          <i class="fas fa-arrow-left"></i> Voltar
+        </button>
+        <% if (typeof dadosReenvio !== 'undefined') { %>
+          <button onclick="document.getElementById('formReenvio').submit();" class="btn btn-primary btn-lg">
+            <i class="fas fa-redo"></i> Tentar Novamente
+          </button>
+        <% } %>
+        <a href="/" class="btn btn-success btn-lg ml-3">
+          <i class="fas fa-home"></i> Página Inicial
+        </a>
+      </div>
+    <% } else { %>
+      <i class="fas fa-check-circle fa-5x text-success fadeIn"></i>
+      <h1 class="display-4 mt-3">Pedido inserido com sucesso!</h1>
+      <p class="lead">Parabéns, seu pedido foi inserido com sucesso!</p>
+      <p class="mt-5">
+        <a href="/" class="btn btn-success btn-lg">
+          <i class="fas fa-home"></i> Retornar para home
+        </a>
+      </p>
+    <% } %>
+  </div>
+
+  <script>
+    // Se houver erro, mostrar alerta adicional
+    <% if (typeof erro !== 'undefined' && erro) { %>
+      setTimeout(function() {
+        var alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-info alert-dismissible fade show position-fixed';
+        alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 400px;';
+        alertDiv.innerHTML = `
+          <h5><i class="fas fa-info-circle"></i> Dica</h5>
+          Erros de conexão podem ocorrer devido a instabilidades na rede.
+          Tente novamente em alguns instantes.
+          <button type="button" class="close" data-dismiss="alert">
+            <span>&times;</span>
+          </button>
+        `;
+        document.body.appendChild(alertDiv);
+      }, 1000);
+    <% } %>
+  </script>
+</body>
+
+</html>
