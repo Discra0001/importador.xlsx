@@ -24,7 +24,7 @@ jobs:
           cd /home/discra/importador_xlsx
           git fetch origin
           git reset --hard origin/main
-          npm ci --production
+          npm ci --production 2>/dev/null || npm install --production
           docker restart importador_xlsx
-          docker ps --filter "name=importador_xlsx" --format "table {{.Names}}\t{{.Status}}"
+          docker ps --filter "name=importador_xlsx" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
           ENDSSH
