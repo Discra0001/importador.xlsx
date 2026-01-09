@@ -1,9 +1,8 @@
-name: Deploy to Production Server
+name: Deploy to Production
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -11,33 +10,21 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Deploy to server via SSH
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          port: ${{ secrets.SSH_PORT }}
-          username: ${{ secrets.SSH_USER }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          script_stop: true
-          script: |
-            CONTAINER_NAME="importador_xlsx"
-            CONTAINER_PATH="/home/discra/importador_xlsx"
-            
-            echo "🚀 Iniciando deployment..."
-            cd "$CONTAINER_PATH"
-            
-            echo "📥 Pulling latest changes..."
-            git fetch origin
-            git reset --hard origin/main
-            git clean -fd
-            
-            echo "📦 Installing dependencies..."
-            npm ci --production
-            
-            echo "🔄 Restarting container..."
-            docker restart "$CONTAINER_NAME"
-            
-            echo "📊 Status:"
-            docker ps --filter "name=$CONTAINER_NAME" --format "table {{.Names}}\t{{.Status}}"
-            
-            echo "✅ Deploy concluído!"
+      - name: Deploy via SSH
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key -p $SSH_PORT $SSH_USER@$SSH_HOST << 'ENDSSH'
+          cd /home/discra/importador_xlsx
+          git fetch origin
+          git reset --hard origin/main
+          npm ci --production
+          docker restart importador_xlsx
+          docker ps --filter "name=importador_xlsx" --format "table {{.Names}}\t{{.Status}}"
+          ENDSSH
